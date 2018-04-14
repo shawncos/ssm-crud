@@ -20,6 +20,14 @@
     </properties>
 
     <dependencies>
+        <!--pagehelper分页插件-->
+        <!-- https://mvnrepository.com/artifact/com.github.pagehelper/pagehelper -->
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper</artifactId>
+            <version>5.1.2</version>
+        </dependency>
+
         <!--spring 单元测试模块-->
         <!-- https://mvnrepository.com/artifact/org.springframework/spring-test -->
         <dependency>

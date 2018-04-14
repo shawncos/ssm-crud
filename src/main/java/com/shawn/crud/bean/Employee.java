@@ -13,6 +13,17 @@ public class Employee {
     //希望查询员工时，能显示部门信息。
     private Department department;
 
+    public Employee(Integer empId, String empName, String gender, String email, Integer dId) {
+        this.empId = empId;
+        this.empName = empName;
+        this.gender = gender;
+        this.email = email;
+        this.dId = dId;
+    }
+
+    public Employee() {
+    }
+
     public Department getDepartment() {
         return department;
     }

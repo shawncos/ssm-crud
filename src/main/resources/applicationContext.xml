@@ -34,6 +34,11 @@
         <!--扫描dao接口-->
         <property name="basePackage" value="com.shawn.crud.dao"></property>
     </bean>
+    <!--配置一个可以批量的sqlSession-->
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"></constructor-arg>
+        <constructor-arg name="executorType" value="BATCH"></constructor-arg>
+    </bean>
     <!--事务-->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <!--控制数据源-->

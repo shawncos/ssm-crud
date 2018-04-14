@@ -10,4 +10,7 @@
         <package name="com.shawn.crud.bean"/>
 
     </typeAliases>
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor"></plugin>
+    </plugins>
 </configuration>
