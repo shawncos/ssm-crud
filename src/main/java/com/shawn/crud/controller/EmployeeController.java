@@ -3,17 +3,20 @@ package com.shawn.crud.controller;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.shawn.crud.bean.Employee;
+import com.shawn.crud.bean.Msg;
 import com.shawn.crud.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
 /*
  * 处理crud请求
+ * 需要导入jackson的包
  *
  * */
 @Controller
@@ -22,6 +25,23 @@ public class EmployeeController {
     EmployeeService employeeService;
 
     @RequestMapping("/emps")
+    @ResponseBody
+    public Msg getEmpsWithJson(@RequestParam(value = "pn", defaultValue = "1") Integer pn){
+        PageHelper.startPage(pn, 5);
+        //后面紧跟的查询就是分页查询
+
+        List<Employee> emps = employeeService.getAll();
+        //使用pageinfo 包装查询后的结果
+        //封装了详细的分页信息,可以传入连续显示的页数
+        PageInfo page = new PageInfo(emps, 5);
+
+
+
+        return Msg.success().add("pageInfo",page);
+    }
+
+
+  /*  //@RequestMapping("/emps")
     public String getEmps(@RequestParam(value = "pn", defaultValue = "1") Integer pn, Model model) {
         //这不是一个分页查询：
         //pagehelper插件
@@ -38,5 +58,5 @@ public class EmployeeController {
 
 
         return "list";
-    }
+    }*/
 }
