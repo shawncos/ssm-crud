@@ -12,7 +12,7 @@
 
     <!--配置视图解析器 方便控制-->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <property name="prefix" value="/WEB-INF/views"></property>
+        <property name="prefix" value="/WEB-INF/views/"></property>
         <property name="suffix" value=".jsp"></property>
     </bean>
     <!--两个标准配置-->
