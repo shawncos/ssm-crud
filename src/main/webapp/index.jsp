@@ -64,11 +64,10 @@
     </div>
     <!--分页信息-->
     <div class="row">
-        <div class="col-md-6">
-            当前第 页,总共 页,总记录数为
+        <div class="col-md-6" id="page_info_area">
         </div>
         <!--分页条信息-->
-        <div class="col-md-6">
+        <div class="col-md-6" id="page_nav_area">
 
         </div>
     </div>
@@ -76,22 +75,32 @@
 <script type="text/javascript">
     //页面加载完成后，发送ajax请求，要到分页数据
     $(function () {
+        to_page(1);
+
+    });
+    function to_page(pn){
+
         $.ajax({
             url: "${APP_PATH}/emps",
-            data: "pn=1",
+            data: "pn="+pn,
             type: "GET",
             success: function (result) {
                 //console.log(result);
                 //1.在页面解析json,并显示员工信息
                 build_emp_table(result);
                 //2.显示分页信息
+                bulid_page_info(result);
+                //3.解析显示分页条数据
+                bulid_page_nav(result);
             }
         })
 
-    });
+    }
 
     //显示表格信息
     function build_emp_table(result) {
+        //清空表格
+        $("#emps_table tbody").empty();
         var emps = result.extend.pageInfo.list;
         $.each(emps, function (index, item) {
             //alert(item.empName);
@@ -117,7 +126,7 @@
                 .append($("<span></span>")
                     .addClass("glyphicon glyphicon-trash"))
                 .append("删除");
-            var btnTd=$("<td></td>").append(editBtn).append(" ").append(delBtn);
+            var btnTd = $("<td></td>").append(editBtn).append(" ").append(delBtn);
             //append方法执行完成以后，还是返回原来的元素
             $("<tr></tr>").append(empIdTd)
                 .append(empNameTd)
@@ -127,11 +136,72 @@
                 .append(btnTd)
                 .appendTo("#emps_table tbody");
         })
+    };
+
+    //解析显示分页信息。
+    function bulid_page_info(result) {
+        $("#page_info_area").empty();
+        $("#page_info_area").append(" 当前第" + result.extend.pageInfo.pageNum + " 页," +
+            "总共" + result.extend.pageInfo.pages + "页,总共" + result.extend.pageInfo.total + "记录")
+
     }
 
-    //显示分页信息
-    function bulid_page_nav(result) {
 
+    //显示分页信息,点击下一页要能去下一页
+    function bulid_page_nav(result) {
+        $("#page_nav_area").empty();
+        var ul=$("<ul></ul>").addClass("pagination");
+        //构建
+        var firstPageLi =$("<li></li>").append($("<a></a>").append("首页").attr("href","#"));
+        var prePageLi=$("<li></li>").append($("<a></a>").append("&laquo;"));
+        if(result.extend.pageInfo.hasPreviousPage==false){
+            firstPageLi.addClass("disabled");
+            prePageLi.addClass("disabled");
+        }else{
+            //为元素添加点击翻页的事件
+            firstPageLi.click(function () {
+                to_page(1);
+            });
+            prePageLi.click(function () {
+                to_page(result.extend.pageInfo.pageNum-1);
+            });
+        }
+
+
+        var nextPageLi=$("<li></li>").append($("<a></a>").append("&raquo;"));
+        var lastPageLi=$("<li></li>").append($("<a></a>").append("末页").attr("href","#"));
+        if(result.extend.pageInfo.hasNextPage==false){
+            nextPageLi.addClass("disabled");
+            lastPageLi.addClass("disabled");
+        }else{
+            nextPageLi.click(function () {
+                to_page(result.extend.pageInfo.pageNum+1);
+            });
+            lastPageLi.click(function () {
+                to_page(result.extend.pageInfo.pages)
+            });
+        }
+
+        //构造首页和前一页
+        ul.append(firstPageLi).append(prePageLi);
+        //给每一页添加
+        $.each(result.extend.pageInfo.navigatepageNums,function (index,item) {
+            var numLi=$("<li></li>").append($("<a></a>").append(item));
+            if (result.extend.pageInfo.pageNum==item){
+                numLi.addClass("active");
+            }
+            numLi.click(function () {
+                to_page(item);
+            })
+
+            ul.append(numLi);
+        });
+        //添加下一页和末页
+        ul.append(nextPageLi).append(lastPageLi);
+        //将ul加入到nav中
+        var navEle=$("<nav></nav>").append(ul);
+
+        navEle.appendTo("#page_nav_area");
     }
 
 
