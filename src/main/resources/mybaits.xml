@@ -13,7 +13,7 @@
     <plugins>
         <plugin interceptor="com.github.pagehelper.PageInterceptor">
             <!--调整分页合理化-->
-            <property name="resonable" value="true"></property>
+            <property name="reasonable" value="true"></property>
         </plugin>
     </plugins>
 </configuration>

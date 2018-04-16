@@ -41,6 +41,7 @@
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="empName" id="empName_add_input"
                                    placeholder="username">
+                            <span class="help-block"></span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -48,6 +49,7 @@
                         <div class="col-sm-10">
                             <input type="email" class="form-control" name="email" id="email_add_input"
                                    placeholder="email">
+                            <span class="help-block"></span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -285,20 +287,76 @@
         });
     }
 
+    //校验
+    function validate_add_form() {
+        //拿到要校验的数据，使用正则表达式
+        var empName = $("#empName_add_input").val();
+        var regName = /(^[a-zA-Z0-9_-]{3,16}$)|(^[\u2E80-\u9FFF]{2,5})/;
+        //alert(regName.test(empName));
+        if (!regName.test(empName)) {
+            //alert("用户名可以是2-5位汉字，或者6-16位字母的组合");
+            show_validate_msg("#empName_add_input", "error", "用户名可以是2-5位汉字，或者6-16位字母的组合")
+            /*$("#empName_add_input").parent().addClass("has-error");
+            $("#empName_add_input").next("span").text("用户名可以是2-5位汉字，或者6-16位字母的组合");*/
+            return false;
+
+        } else {
+            show_validate_msg("#empName_add_input", "success", "")
+            /*  $("#empName_add_input").parent().addClass("has-success");
+              $("#empName_add_input").next("span").text("");*/
+        }
+        var email = $("#email_add_input").val();
+        var regEmail = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
+        if (!regEmail.test(email)) {
+            //alert("邮箱格式不正确");
+            //应该清空之前的样式
+            show_validate_msg("#email_add_input", "error", "邮箱格式不正确")
+            /*$("#email_add_input").parent().addClass("has-error");
+            $("#email_add_input").next("span").text("邮箱格式不正确");*/
+            return false;
+
+        } else {
+            show_validate_msg("#email_add_input", "success", "")
+            /* $("#email_add_input").parent().addClass("has-success");
+             $("#email_add_input").next("span").text("");*/
+        }
+        return true;
+    }
+
+    function show_validate_msg(ele, status, msg) {
+        //清除当前元素的校验状态
+        $(ele).parent().removeClass("has-error has-success");
+        if (status == "success") {
+            $(ele).parent().addClass("has-success");
+            $(ele).next("span").text(msg);
+
+
+        } else if (status == "error") {
+            $(ele).parent().addClass("has-error");
+            $(ele).next("span").text(msg);
+
+        }
+    }
+
+    //点击保存
     //模态框中的数据发送请求，保存到服务器
     $("#emp_sav_btn").click(function () {
+        //对要发送给服务器的数据进行校验
+        if (!validate_add_form()) {
+            return false;
+        }
         //发送ajax请求,保存员工
-       $.ajax({
+        $.ajax({
             url: "${APP_PATH}/emp",
             type: "POST",
-            data:$("#empAddModal form").serialize(),
-            success:function (result) {
+            data: $("#empAddModal form").serialize(),
+            success: function (result) {
 
                 //保存成功,关闭模态框,来到最后一页
                 $("#empAddModal").modal('hide');
                 //发送ajax请求,到最后一页
                 //将总记录数,
-                to_page(totalRecord );
+                to_page(totalRecord);
             }
         })
         //alert($("#empAddModal form").serialize());
