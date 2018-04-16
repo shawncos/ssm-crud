@@ -25,17 +25,37 @@ public class EmployeeController {
     @Autowired
     EmployeeService employeeService;
 
-    //员工保存
-    @RequestMapping(value="/emp",method = RequestMethod.POST)
+    //检查用户名是否可用
     @ResponseBody
-    public Msg saveEmp(Employee employee){
+    @RequestMapping("/checkuser")
+    public Msg checkUser(@RequestParam("empName") String empName) {
+        //System.out.print(empName);
+        //先判断用户名是否合法
+        String regx="(^[a-zA-Z0-9_-]{3,16}$)|(^[\u2E80-\u9FFF]{2,5})";
+        if (!empName.matches(regx)){
+            return Msg.fail().add("va_msg","用户名有错误");
+        }
+        //数据库用户名重复校验
+        boolean b = employeeService.checkUser(empName);
+        if (b) {
+            return Msg.success();
+        } else {
+            return Msg.fail().add("va_msg","用户名不可用");
+        }
+    }
+
+
+    //员工保存
+    @RequestMapping(value = "/emp", method = RequestMethod.POST)
+    @ResponseBody
+    public Msg saveEmp(Employee employee) {
         employeeService.saveEmp(employee);
         return Msg.success();
     }
 
     @RequestMapping("/emps")
     @ResponseBody
-    public Msg getEmpsWithJson(@RequestParam(value = "pn", defaultValue = "1") Integer pn){
+    public Msg getEmpsWithJson(@RequestParam(value = "pn", defaultValue = "1") Integer pn) {
         PageHelper.startPage(pn, 5);
         //后面紧跟的查询就是分页查询
 
@@ -45,8 +65,7 @@ public class EmployeeController {
         PageInfo page = new PageInfo(emps, 5);
 
 
-
-        return Msg.success().add("pageInfo",page);
+        return Msg.success().add("pageInfo", page);
     }
 
 
