@@ -1,12 +1,15 @@
 package com.shawn.crud.bean;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Pattern;
+
 public class Employee {
     private Integer empId;
-
+    @Pattern(regexp = "(^[a-zA-Z0-9_-]{3,16}$)|(^[\u2E80-\u9FFF]{2,5})",message = "用户名必须")
     private String empName;
 
     private String gender;
-
+    @Email
     private String email;
 
     private Integer dId;

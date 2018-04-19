@@ -25,6 +25,61 @@
     <title>员工列表</title>
 </head>
 <body>
+<!-员工修改的模态框-->
+<!-- 员工添加 -->
+<div class="modal fade" id="empUpdateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" >修改员工</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="empName_add_input" class="col-sm-2 control-label">姓名</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="empName" id="empName_update_input"
+                                   placeholder="username">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email_add_input" class="col-sm-2 control-label">email</label>
+                        <div class="col-sm-10">
+                            <input type="email" class="form-control" name="email" id="email_update_input"
+                                   placeholder="email">
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">性别</label>
+                        <div class="col-sm-10">
+                            <label class="radio-inline">
+                                <input type="radio" name="gender" id="gender1_update_input" value="M" checked> 男
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="gender" id="gender2_update_input" value="F"> 女
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">部门</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="dId" id="dept_update_select">
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="emp_update_btn">更新</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- 员工添加 -->
 <div class="modal fade" id="empAddModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
@@ -373,13 +428,14 @@
     //模态框中的数据发送请求，保存到服务器
     $("#emp_sav_btn").click(function () {
         //对要发送给服务器的数据进行校验
-        if (!validate_add_form()) {
+          if (!validate_add_form()) {
             return false;
         }
         //判断之前的ajax用户名请求校验是否成功。如果成功
         if ($(this).attr("ajax-va") == "error") {
             return false;
         }
+        //alert($("#empAddModal form").serialize());
         //发送ajax请求,保存员工
         $.ajax({
             url: "${APP_PATH}/emp",
@@ -387,11 +443,24 @@
             data: $("#empAddModal form").serialize(),
             success: function (result) {
 
-                //保存成功,关闭模态框,来到最后一页
-                $("#empAddModal").modal('hide');
-                //发送ajax请求,到最后一页
-                //将总记录数,
-                to_page(totalRecord);
+                if(result.code==100){
+                    //保存成功,关闭模态框,来到最后一页
+                    $("#empAddModal").modal('hide');
+                    //发送ajax请求,到最后一页
+                    //将总记录数,
+                    to_page(totalRecord);
+                }else{
+                    //显示失败信息
+                    console.log(result);
+                    if (undefined==result.extend.errorFields.empName){
+                        show_validate_msg("#email_add_input", "error", result.extend.errorFields.email);
+                    }
+                    if (undefined==result.extend.errorFields.email){
+                        show_validate_msg("#empName_add_input", "error", result.extend.errorFields.empName);
+                    }
+                }
+
+
             }
         })
         //alert($("#empAddModal form").serialize());
