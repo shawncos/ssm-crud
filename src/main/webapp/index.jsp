@@ -40,8 +40,7 @@
                     <div class="form-group">
                         <label for="empName_add_input" class="col-sm-2 control-label">姓名</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" name="empName" id="empName_update_input"
-                                   placeholder="username">
+                            <p class="form-control-static" id="empName_update_static"></p>
                             <span class="help-block"></span>
                         </div>
                     </div>
@@ -230,12 +229,15 @@
                             <button class="btn btn-danger btn-sm"><span class="glyphicon glyphicon-trash"></span> 删除
                             </button>*/
             var editBtn = $("<button></button>")
-                .addClass("btn btn-primary btn-sm")
+                .addClass("btn btn-primary btn-sm edit_btn")
                 .append($("<span></span>")
                     .addClass("glyphicon glyphicon-pencil"))
                 .append("编辑");
+            //为编辑按钮添加一个自定义的属性，来表示当前员工的id
+            editBtn.attr("edit-id",item.empId);
+
             var delBtn = $("<button></button>")
-                .addClass("btn btn-danger btn-sm")
+                .addClass("btn btn-danger btn-sm delete_btn")
                 .append($("<span></span>")
                     .addClass("glyphicon glyphicon-trash"))
                 .append("删除");
@@ -331,7 +333,7 @@
         reset_form("#empAddModal form");
         //$("#empAddModal form")[0].reset();
         //弹出模态框，发送ajax请求，显示在下拉列表中
-        getDepts();
+        getDepts("#empAddModal select");
         $("#empAddModal").modal({
             backdrop: "static"
         });
@@ -339,7 +341,9 @@
     });
     
 
-    function getDepts() {
+    function getDepts(ele) {
+        //清空之前下拉列表得知
+        $(ele).empty();
         $.ajax({
             url: "${APP_PATH}/depts",
             type: "GET",
@@ -349,7 +353,7 @@
                 //$("#empAddModal select").append()
                 $.each(result.extend.depts, function () {
                     var optionEle = $("<option></option>").append(this.deptName).attr("value", this.deptId);
-                    optionEle.appendTo("#empAddModal select");
+                    optionEle.appendTo(ele);
                 })
             }
         });
@@ -465,7 +469,33 @@
         })
         //alert($("#empAddModal form").serialize());
     });
+    //按钮创建之前，就绑定了
+    //1）可以在创建按钮时，绑定事件 2）live方法，可以为后来的元素绑定，使用on方法进行替代。
+    $(document).on("click",".edit_btn",function () {
+        //alert("edit");
+        //0.查出员工信息，显示员工信息
 
+        //1.查出部门信息，并显示部门列表
+        getDepts("#empUpdateModal select");
+        getEmp($(this).attr("edit-id"));
+        $("#empUpdateModal").modal({
+            backdrop: "static"
+        });
+    })
+    function getEmp(id){
+        $.ajax({
+            url:"${APP_PATH}/emp/"+id,
+            type:"GET",
+            success:function (result) {
+                //console.log(result);
+                var empData=result.extend.emp;
+                $("#empName_update_static").text(empData.empName);
+                $("#email_add_input").val(empData.email);
+                $("#empUpdateModal input[name=gender]").val([empData.gender]);
+                $("#empUpdateModal select").val(empData.dId);
+            }
+        })
+    }
 
 </script>
 </body>

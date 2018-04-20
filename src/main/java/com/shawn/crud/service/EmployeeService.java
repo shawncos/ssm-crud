@@ -35,4 +35,10 @@ public class EmployeeService {
        // System.out.println(count);
         return count == 0;
     }
+
+
+    public Employee getEmp(Integer id) {
+        Employee employee=employeeMapper.selectByPrimaryKey(id);
+        return employee;
+    }
 }

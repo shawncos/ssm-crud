@@ -11,10 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -87,6 +84,13 @@ public class EmployeeController{
 
 
         return Msg.success().add("pageInfo", page);
+    }
+
+    @RequestMapping(value = "/emp/{id}",method = RequestMethod.GET)
+    @ResponseBody
+    public Msg getEmp(@PathVariable("id") Integer id){
+        Employee  employee=employeeService.getEmp(id);
+        return Msg.success().add("emp",employee);
     }
 
 
