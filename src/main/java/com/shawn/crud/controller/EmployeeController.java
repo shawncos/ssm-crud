@@ -28,6 +28,35 @@ public class EmployeeController{
     @Autowired
     EmployeeService employeeService;
 
+
+
+
+    //单个删除
+    @RequestMapping(value = "/emp/{id}",method = RequestMethod.DELETE)
+    @ResponseBody
+    public Msg deleteEmpById(@PathVariable("id") Integer id){
+
+        employeeService.deleteEmp(id);
+        return Msg.success();
+    }
+
+    //员工更新方法
+    /*
+    * 如果直接发送ajax=PUT请求
+    * 那么请求体中有数据，但是封装不上
+    * 原因，tomcat的问题
+    *
+    * */
+    @RequestMapping(value = "/emp/{empId}",method = RequestMethod.PUT)
+    @ResponseBody
+    public Msg saveEmp(Employee employee){
+        System.out.println(employee);
+
+        employeeService.updateEmp(employee);
+        return Msg.success();
+    }
+
+
     //检查用户名是否可用
     @ResponseBody
     @RequestMapping("/checkuser")

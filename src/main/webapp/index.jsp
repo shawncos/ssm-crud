@@ -33,7 +33,7 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" >修改员工</h4>
+                <h4 class="modal-title">修改员工</h4>
             </div>
             <div class="modal-body">
                 <form class="form-horizontal">
@@ -183,7 +183,7 @@
     </div>
 </div>
 <script type="text/javascript">
-    var totalRecord;
+    var totalRecord, currentPage;
     //页面加载完成后，发送ajax请求，要到分页数据
     $(function () {
         to_page(1);
@@ -234,13 +234,14 @@
                     .addClass("glyphicon glyphicon-pencil"))
                 .append("编辑");
             //为编辑按钮添加一个自定义的属性，来表示当前员工的id
-            editBtn.attr("edit-id",item.empId);
+            editBtn.attr("edit-id", item.empId);
 
             var delBtn = $("<button></button>")
                 .addClass("btn btn-danger btn-sm delete_btn")
                 .append($("<span></span>")
                     .addClass("glyphicon glyphicon-trash"))
                 .append("删除");
+            delBtn.attr("del-id", item.empId);
             var btnTd = $("<td></td>").append(editBtn).append(" ").append(delBtn);
             //append方法执行完成以后，还是返回原来的元素
             $("<tr></tr>").append(empIdTd)
@@ -259,6 +260,7 @@
         $("#page_info_area").append(" 当前第" + result.extend.pageInfo.pageNum + " 页," +
             "总共" + result.extend.pageInfo.pages + "页,总共" + result.extend.pageInfo.total + "记录")
         totalRecord = result.extend.pageInfo.total;
+        currentPage = result.extend.pageInfo.pageNum;
 
     }
 
@@ -327,7 +329,7 @@
         $(ele).find(".help-block").text("");
 
     }
-    
+
     $("#emp_add_modal_btn").click(function () {
         //清除表单数据
         reset_form("#empAddModal form");
@@ -339,7 +341,7 @@
         });
 
     });
-    
+
 
     function getDepts(ele) {
         //清空之前下拉列表得知
@@ -377,6 +379,7 @@
             /*  $("#empName_add_input").parent().addClass("has-success");
               $("#empName_add_input").next("span").text("");*/
         }
+        //校验邮箱信息
         var email = $("#email_add_input").val();
         var regEmail = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
         if (!regEmail.test(email)) {
@@ -432,7 +435,7 @@
     //模态框中的数据发送请求，保存到服务器
     $("#emp_sav_btn").click(function () {
         //对要发送给服务器的数据进行校验
-          if (!validate_add_form()) {
+        if (!validate_add_form()) {
             return false;
         }
         //判断之前的ajax用户名请求校验是否成功。如果成功
@@ -447,19 +450,19 @@
             data: $("#empAddModal form").serialize(),
             success: function (result) {
 
-                if(result.code==100){
+                if (result.code == 100) {
                     //保存成功,关闭模态框,来到最后一页
                     $("#empAddModal").modal('hide');
                     //发送ajax请求,到最后一页
                     //将总记录数,
                     to_page(totalRecord);
-                }else{
+                } else {
                     //显示失败信息
                     console.log(result);
-                    if (undefined==result.extend.errorFields.empName){
+                    if (undefined == result.extend.errorFields.empName) {
                         show_validate_msg("#email_add_input", "error", result.extend.errorFields.email);
                     }
-                    if (undefined==result.extend.errorFields.email){
+                    if (undefined == result.extend.errorFields.email) {
                         show_validate_msg("#empName_add_input", "error", result.extend.errorFields.empName);
                     }
                 }
@@ -471,31 +474,76 @@
     });
     //按钮创建之前，就绑定了
     //1）可以在创建按钮时，绑定事件 2）live方法，可以为后来的元素绑定，使用on方法进行替代。
-    $(document).on("click",".edit_btn",function () {
+    $(document).on("click", ".edit_btn", function () {
         //alert("edit");
         //0.查出员工信息，显示员工信息
 
         //1.查出部门信息，并显示部门列表
         getDepts("#empUpdateModal select");
         getEmp($(this).attr("edit-id"));
+        //3.打开模态框，id传给按钮
+        $("#emp_update_btn").attr("edit-id", $(this).attr("edit-id"));
         $("#empUpdateModal").modal({
             backdrop: "static"
         });
     })
-    function getEmp(id){
+
+    function getEmp(id) {
         $.ajax({
-            url:"${APP_PATH}/emp/"+id,
-            type:"GET",
-            success:function (result) {
+            url: "${APP_PATH}/emp/" + id,
+            type: "GET",
+            success: function (result) {
                 //console.log(result);
-                var empData=result.extend.emp;
+                var empData = result.extend.emp;
                 $("#empName_update_static").text(empData.empName);
-                $("#email_add_input").val(empData.email);
+                $("#email_update_input").val(empData.email);
                 $("#empUpdateModal input[name=gender]").val([empData.gender]);
                 $("#empUpdateModal select").val(empData.dId);
             }
         })
     }
+
+
+    $("#emp_update_btn").click(function () {
+        //验证邮箱是否合法
+        var email = $("#email_update_input").val();
+        var regEmail = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
+        if (!regEmail.test(email)) {
+            show_validate_msg("#email_add_input", "error", "邮箱格式不正确")
+        } else {
+            show_validate_msg("#email_add_input", "success", "")
+        }
+        //2.发送ajax请求，保存更新的员工
+        $.ajax({
+            url: "${APP_PATH}/emp/" + $(this).attr("edit-id"),
+            type: "PUT",
+            data: $("#empUpdateModal form").serialize(),
+            success: function (result) {
+                //alert(result.msg);
+                //闭模态框，回到本页面
+
+                $("#empUpdateModal").modal('hide');
+                to_page(currentPage);
+            }
+        })
+    });
+
+    //单个删除
+    $(document).on("click", ".delete_btn", function () {
+        //弹出是否确认对话框ete_
+        var empName=$(this).parents("tr").find("td:eq(1)").text();
+        if(confirm("确认要删除【"+empName+"】吗？")){
+            $.ajax({
+                url:"${APP_PATH}/emp/"+$(this).attr("del-id"),
+                type:"DELETE",
+                success:function (result) {
+                    alert(result.msg);
+                    to_page(currentPage);
+                }
+            })
+
+        }
+    })
 
 </script>
 </body>
