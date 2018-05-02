@@ -13,6 +13,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,12 +33,25 @@ public class EmployeeController{
 
 
     //单个删除
+    //单个批量二合一
     @RequestMapping(value = "/emp/{id}",method = RequestMethod.DELETE)
     @ResponseBody
-    public Msg deleteEmpById(@PathVariable("id") Integer id){
+    public Msg deleteEmpById(@PathVariable("id") String ids){
+        if(ids.contains("-")){
+            String []str_ids=ids.split("-");
+            //组装id集合
+            List<Integer> del_ids=new ArrayList<>();
+            for (String string:str_ids) {
+                del_ids.add(Integer.parseInt(string));
+            }
+            employeeService.deleteBatch(del_ids);
+            return Msg.success();
+        }else{
+            Integer id=Integer.parseInt(ids);
+            employeeService.deleteEmp(id);
+            return Msg.success();
+        }
 
-        employeeService.deleteEmp(id);
-        return Msg.success();
     }
 
     //员工更新方法
